@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "User.h"
 #include "Date.h"
 
@@ -42,6 +43,10 @@ Date User::get_date()
 {
     return this->birth_date;
 }
+void User::add_fav_genre(std::string _genre)
+{
+    this->favGenres.push_back(_genre);
+}
 void User::print_user()
 {
     std::cout << "=================================" << std::endl;
@@ -51,10 +56,16 @@ void User::print_user()
     std::cout << "Birth-date: "; this->get_date().printDate();
     std::cout << "=================================" << std::endl;
 }
-
-User::User() : username(""), password(""), full_name("")
+User::User() :  username(""), password(""), full_name(""), birth_date() 
 {
 
+}
+User::User(User &other)
+{
+    this->username = other.username;
+    this->password = other.password;
+    this->full_name = other.full_name;
+    this->birth_date = other.birth_date;
 }
 User::~User()
 {

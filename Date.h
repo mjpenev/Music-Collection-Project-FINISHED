@@ -20,13 +20,13 @@ class Date
         bool checkIfLeap(int _year);
         void printDate();
 
-        Date() : day(0), month(0), year(0) {}
-        Date(Date &other);
         Date& operator =(Date &other);
         bool operator < (Date other);
         bool operator > (Date other);
         bool operator <= (Date &other);
         bool operator >= (Date &other);
+        Date();
+        Date(Date &other);
         ~Date();
 
 

@@ -84,21 +84,6 @@ void Date::printDate()
     std::cout << day << "-" << month << "-" << year << std::endl;
 }
 
-Date::Date(Date &other)
-{
-    copyDate(other);
-}
-
-Date& Date::operator =(Date &other)
-{
-    if (this != &other)
-    {
-        copyDate(other);
-    }
-    return *this;
-    
-}
-
 bool Date::operator < (Date other)
 {
     if (this->year < other.year)
@@ -170,7 +155,24 @@ bool Date::operator >= (Date &other)
     return false;
 }
 
+Date::Date() : day(0), month(0), year(0)
+{
+
+}
+Date::Date(Date &other)
+{
+    copyDate(other);
+}
+Date& Date::operator =(Date &other)
+{
+    if (this != &other)
+    {
+        copyDate(other);
+    }
+
+    return *this;
+}
 Date::~Date()
 {
-    
+
 }
