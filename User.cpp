@@ -19,11 +19,13 @@ void User::set_birth_date(Date _date)
 {
     this->birth_date = _date;
 }
-void User::show_fav_genres(std::vector<std::string> _genres)
+void User::show_fav_genres(std::queue<std::string> _genres)
 {
-    for (int i = 0; i < _genres.size(); i++)
+    for (int i = 0; i < this->favGenres.size(); i++)
     {
-        std::cout << _genres[i] << std::endl;
+        favGenres.push(favGenres.front());
+        std::cout << favGenres.front() << " ";
+        favGenres.pop();
     }
     
 }
@@ -45,15 +47,18 @@ Date User::get_date()
 }
 void User::add_fav_genre(std::string _genre)
 {
-    this->favGenres.push_back(_genre);
+    this->favGenres.push(_genre);
 }
 void User::print_user()
 {
+    int counter = this->password.length();
     std::cout << "=================================" << std::endl;
     std::cout << "Username: " << this->username << std::endl;
-    std::cout << "Password: " << this->password << std::endl;
+    std::cout << "Password: "; while (counter != 0) { counter--; std::cout << "*"; } std::cout << std::endl;
     std::cout << "Full name: " << this->full_name << std::endl;
     std::cout << "Birth-date: "; this->get_date().printDate();
+    std::cout << "Favourite genres: "; if (this->favGenres.empty()) { std::cout << "List of favourite genres is currently empty!" << std::endl;}
+    else { show_fav_genres(this->favGenres);} std::cout << std::endl;
     std::cout << "=================================" << std::endl;
 }
 User::User() :  username(""), password(""), full_name(""), birth_date() 

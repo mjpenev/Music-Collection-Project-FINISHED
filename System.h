@@ -18,11 +18,12 @@ class System
         System();
         ~System();
         
+        void _help();
         void print_content_info();
         Register &get_content();
         void push_words(std::string command);
         std::string checkWord(int i);
-        std::vector<std::string> get_words();
+        std::vector<std::string> &get_words();
         int get_vector_size();
         void clearCommand();
         void run_program();
