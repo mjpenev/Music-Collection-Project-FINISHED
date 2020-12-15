@@ -4,18 +4,20 @@
 #include "Song.h"
 #include <vector>
 #include <string>
-#include <map>
+#include <set>
 
 class Playlist
 {
     private:
         std::string Playlist_title;
-        std::vector<Song> content;
+        std::set<Song*> content;    
 
     public:
         void set_playlist_title(std::string _title);
-        void add_content(Song _content);
+        void add_song(Song* _song);
         std::string get_playlist_title();
+        std::set<Song*> &get_content();
+        int content_size();
         void print_content();
 };
 

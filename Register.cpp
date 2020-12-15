@@ -2,12 +2,13 @@
 #include <vector>
 #include "Register.h"
 #include <map>
+#include <set>
 
-void Register::insert_in_system(std::pair<User*, std::vector<Playlist>> curr)
+void Register::insert_in_system(std::pair<User*, std::set<Playlist>> curr)
 {
     this->allUsers.insert(curr);
 }
-std::map <User*, std::vector<Playlist>> &Register::get_allUsers()
+std::map <User*, std::set<Playlist>> &Register::get_allUsers()
 {
     return this->allUsers;
 }

@@ -4,12 +4,15 @@
 #include <vector>
 #include <string>
 #include "Register.h"
+#include "PlaylistCollection.h"
 
 class System
 {
     private:
         std::vector<std::string> words;
         Register content;
+        Collection music_collection;
+
     public:
         static System& i();
         System(const System&) = delete;
@@ -21,6 +24,7 @@ class System
         void _help();
         void print_content_info();
         Register &get_content();
+        Collection &get_music_collection();
         void push_words(std::string command);
         std::string checkWord(int i);
         std::vector<std::string> &get_words();

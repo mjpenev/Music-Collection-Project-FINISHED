@@ -3,7 +3,9 @@
 #include <map>
 #include "System.h"
 #include "Playlist.h"
+#include "PlaylistCollection.h"
 #include "Song.h"
+#include <set>
 
 using namespace std;
 
@@ -45,17 +47,17 @@ void System::_help()
     std::cout << std::endl;
     std::cout << "- sign up - Makes a new registration in the system." << std::endl;
     std::cout << "- sign in - Signs in the system with already made registration." << std::endl;
+    std::cout << "- generate playlist -  Generates new playlist. "<<std::endl;
+    std::cout << "- add song -  Generates song and adds it in playlist. "<<std::endl;
     std::cout << "- show users - Shows a list with information for all users." << std::endl;
-    std::cout << "- open <file path> - Opens a file with registrations and reads information." << std::endl;
-    std::cout << "- close - Closes a file." << std::endl;
-    std::cout << "- save - Saves all changes to the opened file." << std::endl;
+    std::cout << "- show collection - Shows a list with information for all playlists." << std::endl;
     std::cout << "- help - Shows a list with supported commands." << std::endl;
     std::cout << "- exit - Closing files and exiting program." << std::endl;
     std::cout << std::endl;
     std::cout << "====================   Once you've logged in you can   =====================" << std::endl;
     std::cout << std::endl;
-    std::cout << "- add playlist <playlist> - Adds playlist to User's favourites."<<std::endl;
-    std::cout << "- add favourite genre <genre> - Adds genre to User's favourites." << std::endl;
+    std::cout << "- add genres - Adds genre to User's favourites." << std::endl;
+    std::cout << "- sign out - Signs out from account." << std::endl;
     std::cout << std::endl;
     std::cout << "============================================================================" << std::endl;
 }
@@ -68,25 +70,30 @@ void System::print_content_info()
 {
     get_content().print_all_Users();   
 }
+Collection &System::get_music_collection()
+{
+    return this->music_collection;
+}
 
 void System::run_program()
 {
     string command;
-    cout << "*********************************************************" << endl;
-    cout << endl;
-    cout << "*********" << " WELCOME TO YOUR MUSIC COLLECTION APP! " << "*********" << endl;
-    cout << endl;
-    cout << "*********************************************************" << endl;
-    cout << endl;
-    cout << "   " << "YOU CAN REGISTER IN OUR SYSTEM BY TYPING 'sign up'" << "   "
-    << endl << "   "<< "   FOR ALREADY REGISTERED ACCOUNTS USE 'sign in'" << "     " << endl;
-    cout << endl;
-    cout << "*********************************************************" << endl;
+    std::cout << "*********************************************************" << std::endl;
+    std::cout << std::endl;
+    std::cout << "*********" << " WELCOME TO YOUR MUSIC COLLECTION APP! " << "*********" << std::endl;
+    std::cout << std::endl;
+    std::cout << "*********************************************************" << std::endl;
+    std::cout << std::endl;
+    std::cout << "   " << "YOU CAN REGISTER IN OUR SYSTEM BY TYPING 'sign up'" << "   "
+    << std::endl << "   "<< "   FOR ALREADY REGISTERED ACCOUNTS USE 'sign in'" << "     " << std::endl;
+    std::cout << "           TO SEE SUPPORTED COMMANDS TYPE 'help' " << std::endl;
+    std::cout << std::endl;
+    std::cout << "*********************************************************" << std::endl;
 
 
     while(command != "exit")
     {
-        cout << "Insert command: " << endl;
+        std::cout << "Insert command: " << endl;
         getline(cin, command);
         istringstream lineIn(command);
         string word;
@@ -280,12 +287,100 @@ void System::run_program()
             cin.ignore();
             curr->set_birth_date(*(bd));
 
-            std::pair<User*, std::vector<Playlist>> current;
+            std::pair<User*, std::set<Playlist>> current;
             current.first = curr;
-            std::vector<Playlist> songs;
+            std::set<Playlist> songs;
             current.second = songs;
             get_content().insert_in_system(current);
             std::cout << "Registration is succesfully made! Type 'sign in' to log into your account!" << std::endl;         
+        }
+        else if(checkWord(0) == "generate" && checkWord(1) == "playlist")
+        {
+            Playlist *curr = new Playlist;
+            std::string _title;
+            std::cout << "Name the new playlist: ";
+            getline(cin , _title);
+            curr->set_playlist_title(_title);
+            get_music_collection().add_playlist(curr);
+            std::cout << "Playlist successfully added to Music collection!" << std::endl;
+        }
+        else if(checkWord(0) == "show" && checkWord(1) == "collection")
+        {
+            get_music_collection().print_playlists();
+        }
+        else if(checkWord(0) == "add" && checkWord(1) == "song")
+        {
+            if (get_music_collection().get_playlists().empty())
+            {
+                std::cout << "Collection is empty yet. You must generate a playlist first!" << std::endl;
+            }
+            else
+            {
+                Song *curr = new Song;
+                std::string _album, _artist, _genre, _rating, _title, _playlist;
+                int _year;
+                cout << "Title of the song: ";
+                getline(cin, _title);
+                curr->set_title(_title);
+                cout << "Name the artist: ";
+                getline(cin, _artist);
+                curr->set_artist(_artist);
+                cout << "Album (not necessary) : ";
+                getline(cin, _album);
+                curr->set_album(_album);
+                cout << "Genre of song: ";
+                cin >> _genre;
+                curr->set_genre(_genre);
+                cin.ignore();
+                do
+                {
+                    std::cout << "Year of release: ";
+                    cin >> _year;
+                } while (_year < 0 || _year > 2020);
+                cin.ignore();
+                curr->set_year(_year);
+                std::cout << "************************************************************************************************" <<std::endl;
+                std::cout << std::endl;
+                std::cout << "You're song is ready! Now which playlist do you choose? To see playlists type (show collection)." << std::endl;
+                std::cout << std::endl;
+                std::cout << "************************************************************************************************" <<std::endl;
+                bool success = false;
+                while (!success)
+                {
+                    std::cout << "Playlist title: ";
+                    getline(cin, _playlist);
+                    for (auto it = get_music_collection().get_playlists().begin(); it != get_music_collection().get_playlists().end(); it++)
+                    {
+                        Playlist* curr_playlist;
+                        curr_playlist = *it;
+                        if (curr_playlist->get_playlist_title() == _playlist)
+                        {
+                            curr_playlist->add_song(curr);
+                            success = true;
+                            get_music_collection().add_playlist(curr_playlist);
+                            std::cout << "*****************************************" << std::endl;
+                            std::cout << std::endl;
+                            std::cout << "Successfully added song in '" << curr_playlist->get_playlist_title() << "' !" << std::endl;
+                            std::cout << "There are " << curr_playlist->content_size() << " songs in this playlist" << std::endl;
+                            std::cout << std::endl;
+                            std::cout << "*****************************************" << std::endl;
+                            break;
+                        }
+                        
+                    }
+                    if (!success && _playlist != "show collection")
+                    {
+                        std::cout << "No playlist with this title. Try again! To see playlists type 'show collection'." << std::endl;
+                    }
+                    else if (_playlist == "show collection")
+                    {
+                        get_music_collection().print_playlists();
+                    }
+                    
+                }
+
+            }
+            
         }
         else if(checkWord(0) == "show" && checkWord(1) == "users")
         {
