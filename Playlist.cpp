@@ -10,34 +10,27 @@ std::string Playlist::get_playlist_title()
 {
     return this->Playlist_title;
 }
-void Playlist::add_song(Song* _song)
+void Playlist::add_in_playlist(Song* _song)
 {
-    this->content.insert(_song);
+    this->content.push(_song);
 }
-std::set<Song*> &Playlist::get_content()
+std::priority_queue<Song*> &Playlist::get_content()
 {
     return this->content;
 }
 int Playlist::content_size()
 {
-    int size = 0;
-
-    for (auto it = get_content().begin(); it != get_content().end(); it++)
-    {
-        size++;
-    }
-
-    return size;
+    return this->content.size();
 }
 void Playlist::print_content()
 {
     if (!(this->content.empty()))
     {
-        for (auto it = get_content().begin(); it != get_content().end(); it++)
+        for (int i = 0; i < this->content.size(); i++)
         {
-            Song *curr = new Song;
-            curr = *it;
-            curr->print_song();
+            this->content.push(this->content.top());
+            this->content.top()->print_song();
+            this->content.pop();
         }
         
     }

@@ -22,9 +22,21 @@ void Song::set_year(int _year)
 {
     this->year = _year;
 }
+void Song::set_helper(int _num)
+{
+    this->rate_helper = _num;
+}
+void Song::set_people(int _num)
+{
+    this->people_who_rate = _num;
+}
 void Song::set_rating(double _rating)
 {
     this->rating = _rating;
+}
+void Song::push_person(std::string _name)
+{
+    this->people_who_rated.push_back(_name);
 }
 std::string Song::get_title()
 {
@@ -46,9 +58,21 @@ int Song::get_year()
 {
     return this->year;
 }
+int Song::get_people()
+{
+    return this->people_who_rate;
+}
+int Song::get_helper()
+{
+    return this->rate_helper;
+}
 double Song::get_rating()
 {
     return this->rating;
+}
+std::vector<std::string>& Song::get_names()
+{
+    return this->people_who_rated;
 }
 void Song::print_song()
 {

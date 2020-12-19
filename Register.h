@@ -6,6 +6,7 @@
 #include <vector>
 #include "User.h"
 #include "Playlist.h"
+#include <set>
 
 class Register
 {

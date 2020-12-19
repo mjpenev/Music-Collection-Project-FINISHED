@@ -24,7 +24,11 @@ void User::show_fav_genres(std::queue<std::string> _genres)
     for (int i = 0; i < this->favGenres.size(); i++)
     {
         favGenres.push(favGenres.front());
-        std::cout << favGenres.front() << " ";
+        if (i > 0)
+        {
+            std::cout << ", ";
+        }
+        std::cout << favGenres.front();
         favGenres.pop();
     }
     
@@ -48,6 +52,10 @@ Date User::get_date()
 void User::add_fav_genre(std::string _genre)
 {
     this->favGenres.push(_genre);
+}
+std::queue<std::string>& User::get_genres()
+{
+    return this->favGenres;
 }
 void User::print_user()
 {

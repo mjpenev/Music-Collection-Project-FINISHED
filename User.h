@@ -24,6 +24,7 @@ class User
         std::string get_username();
         std::string get_password();
         std::string get_full_name();
+        std::queue<std::string>& get_genres();
         Date get_date();
         void print_user();
         User();
