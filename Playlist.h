@@ -4,6 +4,7 @@
 #include "Song.h"
 #include <string>
 #include <queue>
+#include <vector>
 
 class Playlist
 {
@@ -16,9 +17,12 @@ class Playlist
         void set_playlist_title(std::string _title);
         void add_in_playlist(Song* _song);
         std::string get_playlist_title();
+        void set_max_size(int size);
         std::priority_queue<Song*> &get_content();
         int content_size();
         void print_content();
+
 };
+
 
 #endif

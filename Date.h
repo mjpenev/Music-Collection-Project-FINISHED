@@ -1,6 +1,9 @@
 #ifndef DATE_H_
 #define DATE_H_
 
+#include <vector>
+#include <sstream>
+
 class Date
 {
     private:

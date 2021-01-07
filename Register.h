@@ -11,12 +11,13 @@
 class Register
 {
     private:
-        std::map<User*, std::set<Playlist>> allUsers;
+        std::map<User*, std::set<Playlist*>> allUsers;
     public:
-        void insert_in_system(std::pair<User*, std::set<Playlist>> curr);
+        void insert_in_system(std::pair<User*, std::set<Playlist*>> curr);
+        void insert_playlists(std::string _username, Playlist *curr);
         void print_all_Users();
-        void trace_all_playlists();
-        std::map<User*, std::set<Playlist>> &get_allUsers();
+        std::map<User*, std::set<Playlist*>> &get_allUsers();
+        std::set<Playlist*> &get_playlists_by_username(std::string _username);
         Register();
         ~Register();
 };

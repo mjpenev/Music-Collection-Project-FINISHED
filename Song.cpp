@@ -86,7 +86,7 @@ void Song::print_song()
     std::cout << "=====================================" << std::endl;
 }
 
-Song::Song() : title("Unknown"), artist("Unknown"), genre("Unknown"), album("Unknown"), year(0), rating(0)
+Song::Song() : title("Unknown"), artist("Unknown"), genre("Unknown"), album("Unknown"), year(0), rating(0), rate_helper(0), people_who_rate(0) 
 {
 
 }

@@ -1,27 +1,21 @@
 #include <iostream>
-#include <sstream>
 #include <map>
 #include "System.h"
 #include "Playlist.h"
-#include "MusicCollection.h"
 #include "Song.h"
 #include <set>
 #include <queue>
-
-using namespace std;
 
 System& System::i()
 {
     static System instance;
     return instance;
 }
-
 System::System() 
 {
 
 }
-
-void System::push_words(string _command)
+void System::push_words(std::string _command)
 {
     this->words.push_back(_command);
 }
@@ -29,7 +23,7 @@ std::vector<std::string> &System::get_words()
 {
     return this->words;
 }
-string System::checkWord(int i)
+std::string System::checkWord(int i)
 {
     return this->words[i];
 }
@@ -49,7 +43,7 @@ void System::_help()
     std::cout << "- sign up - Makes a new registration in the system." << std::endl;
     std::cout << "- sign in - Signs in the system with already made registration." << std::endl;
     std::cout << "- show users - Shows a list with information for all users." << std::endl;
-    std::cout << "- show collection - Shows a list with information for all playlists." << std::endl;
+    std::cout << "- show collection - Shows a list with information for all songs in collection." << std::endl;
     std::cout << "- help - Shows a list with supported commands." << std::endl;
     std::cout << "- exit - Closing files and exiting program." << std::endl;
     std::cout << std::endl;
@@ -58,8 +52,9 @@ void System::_help()
     std::cout << "- add genres - Adds genres to User's favourites." << std::endl;
     std::cout << "- remove genre - Removes a genre from User's favourites. " << std::endl;
     std::cout << "- show playlist - Shows information for all songs in a playlist. " << std::endl;
-    std::cout << "- generate playlist -  Generates new playlist in collection. "<<std::endl;
-    std::cout << "- add song -  Generates song and adds it in playlist. "<<std::endl;
+    std::cout << "- generate playlist -  Generates new playlist by criteria. "<<std::endl;
+    std::cout << "- add song -  Adds a song in mucis collection. "<<std::endl;
+    std::cout << "- rate song - Allows user to set rating. (User can rate a song once)" << std::endl;
     std::cout << "- sign out - Signs out from account." << std::endl;
     std::cout << std::endl;
     std::cout << "============================================================================" << std::endl;
@@ -78,9 +73,198 @@ Collection &System::get_music_collection()
     return this->music_collection;
 }
 
+void System::set_info(std::string _content)
+{
+    this->to_write = _content;
+}
+void System::set_path(std::string _path)
+{
+    this->file_path = _path;
+}
+void System::write_in_string(std::string _to_write)
+{
+    this->to_write += _to_write;
+}
+std::string &System::get_info()
+{
+    return this->to_write;
+}
+std::string &System::get_path()
+{
+    return this->file_path;
+}
+void System::set_file_info(std::string _content)
+{
+    this->file_info = _content;
+}
+std::string &System::get_file_info()
+{
+    return this->file_info;
+}
+void System::_updateFile(std::string _path)
+{
+    std::ofstream writeInFile(_path);
+    writeInFile << to_write;
+    writeInFile << "*" << std::endl;
+}
+void System::read_users(Register &users)
+{
+    std::istringstream lineIn(file_info);
+    std::vector<std::string> words_user;
+    std::string word;
+    while(lineIn >> word)
+    {
+        words_user.push_back(word);
+    }
+    for (int i = 0; i < words_user.size(); i++)
+    {
+        if (words_user[i] == "User:")
+        {
+            int counter = 1;
+            User* curr = new User;
+            curr->set_username(words_user[i + 1]);
+            while (words_user[i + counter] != "|")
+            {
+                if (words_user[i + counter] == "Password:")
+                {
+                    curr->set_password(words_user[i  + counter + 1]);
+                }
+                else if (words_user[i + counter] == "name:")
+                {
+                    std::string fn = words_user[i  + counter + 1] + ' ' + words_user[i  + counter + 2] + ' ' + words_user[i  + counter + 3];
+                    curr->set_full_name(fn);
+                }
+                else if (words_user[i + counter] == "birth:")
+                {
+                    Date result;
+                    std::string _date = words_user[i  + counter + 1];
+                    for (int i = 0; i < _date.length(); i++)
+                    {
+                        if (_date[i] == '-')
+                        {
+                            _date[i] = ' ';
+                        }
+                        
+                    }
+                    std::vector <int> nums;
+                    int num;
+                    std::istringstream lineOfNums(_date);
+                    while(lineOfNums >> num)
+                    {
+                        nums.push_back(num);
+                    }
+                    Date d;
+                    if (d.isValid(nums[2], nums[1], nums[0]))
+                    {
+                        result.setDay(nums[2]);
+                        result.setMonth(nums[1]);
+                        result.setYear(nums[0]);
+                    }
+                    nums.clear();
+                    curr->set_birth_date(result);
+                    std::pair<User*, std::set<Playlist*>> curr_pair;
+                    curr_pair.first = curr;
+                    std::set<Playlist*> playlists;
+                    curr_pair.second = playlists;
+                    users.get_allUsers().insert(curr_pair);
+                }
+                counter++;
+            }
+        }
+        
+    }
+}
+void System::read_songs(Collection &songs)
+{
+    std::vector<std::string> helper;
+    std::string elem;
+    std::istringstream myStream(file_info);
+    while(myStream >> elem)
+    {
+        helper.push_back(elem);
+    }
+    for (int i = 0; i < helper.size(); i++)
+    {
+        if (helper[i] == "Song:")
+        {
+            Song* curr = new Song;
+            int p = 1;
+            std::string _title;
+            while (helper[i + p] != "By:")
+            {
+                _title += helper[i + p];
+                _title += ' ';
+                p++; 
+            }
+            curr->set_title(_title);
+            int counter = 1;
+            while (helper[i + counter] != "|")
+            {
+                if (helper[i + counter] == "By:")
+                {
+                    int k = 0;
+                    std::string _artist;
+                    while (helper[i + counter + k + 1] != "Genre:")
+                    {
+                        _artist += helper[i + counter + k + 1];
+                        _artist += ' ';
+                        k++;
+                    }
+                    curr->set_artist(_artist);
+                }
+                else if (helper[i + counter] == "Genre:")
+                {
+                    int k = 0;
+                    std::string _genre;
+                    while (helper[i + counter + k + 1] != "Album:")
+                    {
+                        _genre += helper[i + counter + k + 1];
+                        _genre += ' ';
+                        k++;
+                    }
+                    curr->set_genre(_genre);
+                }
+                else if (helper[i + counter] == "Album:")
+                {
+                    int k = 0;
+                    std::string _album;
+                    while (helper[i + counter + k + 1] != "Year")
+                    {
+                        _album += helper[i + counter + k + 1];
+                        _album += ' ';
+                        k++;
+                    }
+                    curr->set_album(_album);
+                }
+                else if (helper[i + counter] == "release:")
+                {
+                    std::string _year;
+                    _year = helper[i  + counter + 1];
+                    int y = 0;
+                    std::istringstream turnToInt(_year);
+                    turnToInt >> y;
+                    curr->set_year(y);
+                }
+                else if (helper[i + counter] == "Rating:")
+                {
+                    int rate_num = 0;
+                    std::string _rating;
+                    std::istringstream turnToNum(_rating);
+                    turnToNum >> rate_num;
+                    curr->set_rating(rate_num);
+                }
+                counter++;
+            }
+            songs.add_song(curr);
+
+        }
+
+    }
+    
+}
 void System::run_program()
 {
-    string command;
+    std::string command;
     std::cout << "*********************************************************" << std::endl;
     std::cout << std::endl;
     std::cout << "*********" << " WELCOME TO YOUR MUSIC COLLECTION APP! " << "*********" << std::endl;
@@ -92,14 +276,28 @@ void System::run_program()
     std::cout << "           TO SEE SUPPORTED COMMANDS TYPE 'help' " << std::endl;
     std::cout << std::endl;
     std::cout << "*********************************************************" << std::endl;
-
-
+    std::cout << std::endl;
+    set_path("C:\\Users\\User\\desktop\\test.txt");
+    this->file.open(get_path(), std::ios::in);
+    getline(this->file, this->file_info, '*');
+    write_in_string(get_file_info());
+    read_songs(get_music_collection());
+    read_users(get_content());
+    if (file.is_open())
+    {
+        std::cout << "Successfully opened file!" << std::endl;
+    }
+    else
+    {
+        std::cout << "A problem occured in opening file!" << std::endl;
+    }
+    std::cout << std::endl;
     while(command != "exit")
     {
-        std::cout << "Insert command: " << endl;
-        getline(cin, command);
-        istringstream lineIn(command);
-        string word;
+        std::cout << "Insert command: " << std::endl;
+        getline(std::cin, command);
+        std::istringstream lineIn(command);
+        std::string word;
         while (lineIn >> word)
         {
             push_words(word);
@@ -155,7 +353,7 @@ void System::run_program()
                 {
                     std::cout << "Invalid username or password! Please try again. If you're not registered yet type 'sign up' !" << std::endl;
                 }
-                cin.ignore();
+                std::cin.ignore();
                 std::string new_command; 
                 while (new_command != "sign out")
                 {
@@ -164,7 +362,7 @@ void System::run_program()
                         break;
                     }
                     std::cout << "You're logged as " << _username << ". Insert your command: ";
-                    getline(cin, new_command);
+                    getline(std::cin, new_command);
                     if (new_command == "sign out")
                     {
                         std::cout << "Signing out! See you next time!" << std::endl;
@@ -181,7 +379,7 @@ void System::run_program()
                         }
                         std::cout << "Add this genre to favourite: ";
                         std::string genre_to_add;
-                        getline(cin, genre_to_add);
+                        getline(std::cin, genre_to_add);
                         bool success = true;
                         for(int i = 0; i < it->first->get_genres().size(); i++)
                         {
@@ -224,7 +422,7 @@ void System::run_program()
                         {
                             bool success = false;
                             std::cout << "Select genre to remove: ";
-                            getline(cin, genre_to_remove);
+                            getline(std::cin, genre_to_remove);
                             for (int i = 0; i < it->first->get_genres().size(); i++)
                             {
                                 it->first->get_genres().push(it->first->get_genres().front());
@@ -247,34 +445,47 @@ void System::run_program()
                         Song *curr = new Song;
                         std::string _album, _artist, _genre, _rating, _title, _playlist;
                         int _year;
-                        cout << "Title of the song: ";
-                        getline(cin, _title);
+                        std::cout << "Title of the song: ";
+                        getline(std::cin, _title);
                         curr->set_title(_title);
-                        cout << "Name the artist: ";
-                        getline(cin, _artist);
+                        std::cout << "Name the artist: ";
+                        getline(std::cin, _artist);
                         curr->set_artist(_artist);
-                        cout << "Album (not necessary) : ";
-                        getline(cin, _album);
+                        std::cout << "Album (not necessary) : ";
+                        getline(std::cin, _album);
                         curr->set_album(_album);
-                        cout << "Genre of song: ";
-                        getline(cin, _genre);
+                        std::cout << "Genre of song: ";
+                        getline(std::cin, _genre);
                         curr->set_genre(_genre);
                         curr->set_helper(0);
                         curr->set_people(0);
                         do
                         {
                             std::cout << "Year of release: ";
-                            cin >> _year;
+                            std::cin >> _year;
                         } while (_year < 0 || _year > 2020);
-                        cin.ignore();
+                        std::cin.ignore();
                         curr->set_year(_year);
                         this->music_collection.add_song(curr);
+                        std::string file_insertion = "Song: " + _title + " By: " + _artist + " Genre: " + _genre + 
+                        " Album: " + _album + " Year of release: " + std::to_string(_year) + " Rating: " + std::to_string(curr->get_rating()) + " Raters: "
+                        + std::to_string(curr->get_people()) + "(" + std::to_string(curr->get_helper()) + ") |" + '\n';
+                        write_in_string(file_insertion);
+                        _updateFile(get_path());
                         std::cout << "************************************************************************************************" <<std::endl;
                         std::cout << std::endl;
                         std::cout << "You're song is ready! Successfully added to music collection! To see all songs type (show collection)." << std::endl;
                         std::cout << std::endl;
                         std::cout << "************************************************************************************************" <<std::endl;
 
+                    }
+                    else if (new_command == "generate playlist")
+                    {
+                        
+                    }
+                    else if (new_command == "show playlist")
+                    {
+                        
                     }
                     else if (new_command == "show collection")
                     {
@@ -311,7 +522,7 @@ void System::run_program()
                             int rating;
                             std::string song_to_rate;
                             std::cout << "Which song do you want to rate?" << std::endl;
-                            getline(cin, song_to_rate);
+                            getline(std::cin, song_to_rate);
                             bool success = false;
                             Song *curr;
                             auto it = this->music_collection.get_songs().begin();
@@ -361,7 +572,7 @@ void System::run_program()
                                     curr->set_rating(num_to_set);
                                     curr->push_person(_username);
                                     std::cout << "You successfully rated this song! Thank you!" << std::endl;
-                                    cin.ignore();
+                                    std::cin.ignore();
                                 }
                             }
                             
@@ -456,15 +667,19 @@ void System::run_program()
             bd->setDay(d);
             bd->setMonth(m);
             bd->setYear(y);
-            cin.ignore();
+            std::cin.ignore();
             curr->set_birth_date(*(bd));
 
-            std::pair<User*, std::set<Playlist>> current;
+            std::pair<User*, std::set<Playlist*>> current;
             current.first = curr;
-            std::set<Playlist> songs;
+            std::set<Playlist*> songs;
             current.second = songs;
             get_content().insert_in_system(current);
-            std::cout << "Registration is succesfully made! Type 'sign in' to log into your account!" << std::endl;         
+            std::cout << "Registration is succesfully made! Type 'sign in' to log into your account!" << std::endl; 
+            std::string user_insertion = "User: " + _username + " Password: " + _password + 
+            " Full name: " + _fullname + " Date of birth: " + std::to_string(y) + "-" + std::to_string(m) + "-" + std::to_string(d) + " |" + '\n'; 
+            write_in_string(user_insertion);
+            _updateFile(get_path());   
         }
         else if(checkWord(0) == "show" && checkWord(1) == "collection")
         {
@@ -494,5 +709,6 @@ void System::run_program()
 
 System::~System()
 {
+    file.close();
     std::cout << "Closing files. Exiting program..." << std::endl;
 }

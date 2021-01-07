@@ -14,6 +14,10 @@ void Playlist::add_in_playlist(Song* _song)
 {
     this->content.push(_song);
 }
+void Playlist::set_max_size(int size)
+{
+    this->max_size = size;
+}
 std::priority_queue<Song*> &Playlist::get_content()
 {
     return this->content;
