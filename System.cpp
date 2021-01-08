@@ -162,6 +162,15 @@ void System::read_users(Register &users)
                     }
                     nums.clear();
                     curr->set_birth_date(result);
+                }
+                else if (words_user[i + counter] == "genres:")
+                {
+                    int k = 1;
+                    while(words_user[i + counter + k] != "|" )
+                    {
+                        curr->add_fav_genre(words_user[i + counter + k]);
+                        k++;
+                    }
                     std::pair<User*, std::set<Playlist*>> curr_pair;
                     curr_pair.first = curr;
                     std::set<Playlist*> playlists;
@@ -381,14 +390,16 @@ void System::run_program()
                         std::string genre_to_add;
                         getline(std::cin, genre_to_add);
                         bool success = true;
-                        for(int i = 0; i < it->first->get_genres().size(); i++)
+                        int const_size = it->first->get_genres().size();
+                        for(int i = 0; i < const_size; i++)
                         {
+                            it->first->get_genres().push(it->first->get_genres().front());
                             if (it->first->get_genres().front() == genre_to_add)
                             {
                                 success = false;
+                                it->first->get_genres().pop();
                                 break;
                             }
-                            it->first->get_genres().push(it->first->get_genres().front());
                             it->first->get_genres().pop();
                         }
                         if (!success)
@@ -397,7 +408,16 @@ void System::run_program()
                         }
                         else
                         {
-                            it->first->add_fav_genre(genre_to_add);
+                            it->first->add_fav_genre(genre_to_add);   
+                            std::string helper_str;
+                            helper_str = it->first->get_username() +  "'s favourite genres:";
+                            int position = get_file_info().find(helper_str);    
+                            position += helper_str.length();    
+                            get_file_info().insert(position + 1, genre_to_add + " ");
+                            std::ofstream updateGenre(get_path());
+                            updateGenre << get_file_info();
+                            updateGenre << " " << std::endl;
+                                         
                             std::cout << "Genre successfully added to favourites!" << std::endl;
                         }
 
@@ -432,6 +452,20 @@ void System::run_program()
                                     it->first->get_genres().pop();
                                     success = true;
                                     std::cout << "Genre removed from favourites!" << std::endl;
+                                    std::string remove_after = it->first->get_username() + "'s favourite genres: ";
+                                    int position = get_file_info().find(remove_after);
+                                    position += remove_after.length();
+                                    int new_position = position;
+                                    std::string _genres;
+                                    while (get_file_info()[position] != '|')
+                                    {
+                                        _genres += get_file_info()[position];
+                                        position++;
+                                    }
+                                    new_position += _genres.find(genre_to_remove);
+                                    get_file_info().erase(new_position, genre_to_remove.length() + 1); // + 1 cause of the spacebar at the end
+                                    std::ofstream saveInfo(this->file_path);
+                                    saveInfo << get_file_info();
                                 }
                             }
                             if (!success)
@@ -471,7 +505,8 @@ void System::run_program()
                         " Album: " + _album + " Year of release: " + std::to_string(_year) + " Rating: " + std::to_string(curr->get_rating()) + " Raters: "
                         + std::to_string(curr->get_people()) + "(" + std::to_string(curr->get_helper()) + ") |" + '\n';
                         write_in_string(file_insertion);
-                        _updateFile(get_path());
+                        std::ofstream updateSong(this->file_path);
+                        updateSong << to_write;
                         std::cout << "************************************************************************************************" <<std::endl;
                         std::cout << std::endl;
                         std::cout << "You're song is ready! Successfully added to music collection! To see all songs type (show collection)." << std::endl;
@@ -677,7 +712,8 @@ void System::run_program()
             get_content().insert_in_system(current);
             std::cout << "Registration is succesfully made! Type 'sign in' to log into your account!" << std::endl; 
             std::string user_insertion = "User: " + _username + " Password: " + _password + 
-            " Full name: " + _fullname + " Date of birth: " + std::to_string(y) + "-" + std::to_string(m) + "-" + std::to_string(d) + " |" + '\n'; 
+            " Full name: " + _fullname + " Date of birth: " + std::to_string(y) + "-" + std::to_string(m) + "-" + std::to_string(d) + '\n'
+            + _username + "'s favourite genres: |" + '\n';
             write_in_string(user_insertion);
             _updateFile(get_path());   
         }
