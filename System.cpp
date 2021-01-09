@@ -194,23 +194,11 @@ void System::run_program()
                     }
                     else if (new_command == "show collection")
                     {
-                        if (this->music_collection.get_songs().empty())
-                        {
-                            std::cout << "Music collection is currently empty! You can add some songs by the 'add song' command." << std::endl;
-                        }
-                        else
-                        {
-                            this->printer.print_collection_start(this->music_collection.get_songs().size());
-                            this->music_collection.print_songs();
-                        }
+                        call.show_collection(this->get_music_collection(), this->get_printer());
                     }
                     else if(new_command == "show users")
                     {
-                        if (this->get_content().get_allUsers().empty())
-                        {
-                            std::cout << "No registered users yet!" << std::endl;
-                        }
-                        get_content().print_all_Users();   
+                        call.show_users(this->get_content()); 
                     }
                     else if(new_command == "rate song")
                     {
@@ -230,7 +218,6 @@ void System::run_program()
                         std::cout << "You entered incorrect command. Try again. To see supported commands type 'help'" << std::endl;
                     }
                 }
-                
             }
         }
         else if (checkWord(0) == "sign" && checkWord(1) == "up")
@@ -240,15 +227,11 @@ void System::run_program()
         }
         else if(checkWord(0) == "show" && checkWord(1) == "collection")
         {
-            get_music_collection().print_songs();
+            call.show_collection(this->get_music_collection(), this->get_printer());
         }
         else if(checkWord(0) == "show" && checkWord(1) == "users")
         {
-            if (this->get_content().get_allUsers().empty())
-            {
-                std::cout << "No registered users yet!" << std::endl;
-            }
-            get_content().print_all_Users();   
+            call.show_users(this->get_content());  
         }
         else if(command == "help")
         {

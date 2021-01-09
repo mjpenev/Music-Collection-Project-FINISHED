@@ -15,5 +15,7 @@ class Functions
         void show_playlist(std::string _username, Register &users);
         void rate_song(std::string _username, std::string &path_, std::string &file_info, Collection &songs);
         void sign_up(Register &users, std::string &path_, std::string &file_info);
+        void show_collection(Collection &songs, Printer &printer_);
+        void show_users(Register &users);
 };
 #endif

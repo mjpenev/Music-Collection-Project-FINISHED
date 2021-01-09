@@ -326,3 +326,23 @@ void Functions::sign_up(Register &users, std::string &path_, std::string &file_i
     std::ofstream updateUser(path_);
     updateUser << file_info;
 }
+void Functions::show_collection(Collection &songs, Printer &printer_)
+{
+    if (songs.get_songs().empty())
+    {
+        std::cout << "Music collection is currently empty! You can add some songs by the 'add song' command." << std::endl;
+    }
+    else
+    {
+        printer_.print_collection_start(songs.get_songs().size());
+        songs.print_songs();
+    }
+}
+void Functions::show_users(Register &users)
+{
+    if (users.get_allUsers().empty())
+    {
+        std::cout << "No registered users yet!" << std::endl;
+    }
+    users.print_all_Users();  
+}
