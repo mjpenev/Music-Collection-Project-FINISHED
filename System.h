@@ -10,6 +10,7 @@
 #include "Printer.h"
 #include "Reader.h"
 #include "Generator.h"
+#include "FunctionCaller.h"
 
 class System
 {
@@ -20,6 +21,7 @@ class System
         Printer printer;
         Reader reader;
         Generator generator;
+        Functions call;
 
         std::fstream file;
         std::string file_path;
