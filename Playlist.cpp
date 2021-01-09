@@ -14,27 +14,30 @@ void Playlist::add_in_playlist(Song* _song)
 {
     this->content.push(_song);
 }
-void Playlist::set_max_size(int size)
-{
-    this->max_size = size;
-}
 std::priority_queue<Song*> &Playlist::get_content()
 {
     return this->content;
 }
-int Playlist::content_size()
+int Playlist::get_size()
 {
-    return this->content.size();
+    return this->get_content().size();
 }
 void Playlist::print_content()
 {
     if (!(this->content.empty()))
     {
-        for (int i = 0; i < this->content.size(); i++)
+        int const_size = this->content.size();
+        std::queue<Song*> saver;
+        for (int i = 0; i < const_size; i++)
         {
-            this->content.push(this->content.top());
             this->content.top()->print_song();
+            saver.push(this->content.top());
             this->content.pop();
+        }
+        while(!saver.empty())
+        {
+            this->content.push(saver.front());
+            saver.pop();
         }
         
     }

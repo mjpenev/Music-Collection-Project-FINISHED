@@ -7,6 +7,7 @@
 #include <sstream>
 #include "Register.h"
 #include "MusicCollection.h"
+#include "Printer.h"
 
 class System
 {
@@ -14,10 +15,11 @@ class System
         std::vector<std::string> words;
         Register content;
         Collection music_collection;
+        Printer printer;
+
         std::fstream file;
         std::string file_path;
         std::string file_info;
-        std::string to_write;
 
     public:
         static System& i();
@@ -30,12 +32,12 @@ class System
         void run_program();
         void set_info(std::string _content);
         void set_path(std::string _path);
-        void write_in_string(std::string _to_write);
-        void _updateFile(std::string _path);
         void read_users(Register &users);
         void read_songs(Collection &songs);
         void push_words(std::string command);
         void set_file_info(std::string _content);
+        void set_file_end();
+        void generator(std::string username_);
 
         int get_vector_size();
         Register &get_content();
