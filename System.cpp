@@ -31,6 +31,10 @@ Register &System::get_content()
 {
     return this->content;
 }
+Printer &System::get_printer()
+{
+    return this->printer;
+}
 void System::clearCommand()
 {
     this->words.clear();
@@ -67,264 +71,6 @@ std::string &System::get_file_info()
 {
     return this->file_info;
 }
-void System::generator(std::string username_)
-{
-    Playlist *curr = new Playlist;
-    auto it = this->get_content().get_allUsers().begin();
-    for ( ; it != this->get_content().get_allUsers().end(); it++)
-    {
-        if (it->first->get_username() == username_) break;
-    }
-    std::string playlist_title;
-    std::cout << "Playlist title will be: ";
-    getline(std::cin, playlist_title);
-    curr->set_playlist_title(playlist_title);
-    std::cout << "Max size will be (can't be more than 20): " << std::endl;
-    int playlist_size;
-    do
-    {
-        std::cin >> playlist_size;
-        if (playlist_size < 0 || playlist_size > 20)
-        {
-            std::cout << "Invalid size!" << std::endl;
-        }
-    } while (playlist_size < 0 || playlist_size > 20);
-    this->printer.print_playlist_criterion();
-    std::string _criterion;
-    std::cin.ignore();
-    getline(std::cin, _criterion);
-    std::vector<std::string> seperate_criterion;
-    std::istringstream readCriteria(_criterion);
-    std::string _word;
-    while (readCriteria >> _word)
-    {
-        seperate_criterion.push_back(_word);
-    }
-    if (seperate_criterion.size() < 4) // if words are less than 4, then there is only 1 criteria
-    {
-        auto it = this->get_content().get_allUsers().begin();
-        for ( ; it != this->get_content().get_allUsers().end(); it++)
-        {
-            if (it->first->get_username() == username_) break;
-        }
-        
-        for (int i = 0; i < seperate_criterion.size(); i++)
-        {
-            
-            if (seperate_criterion[i] == "Before" || seperate_criterion[i] == "After")
-            {
-                int year_ = 0;
-                std::istringstream turnToNum(seperate_criterion[i + 1]);
-                turnToNum >> year_;
-                Song* curr_song = new Song;
-                int counter = 0;
-                for (auto iter = this->get_music_collection().get_songs().begin(); iter != this->get_music_collection().get_songs().end(); iter++)
-                {
-                    curr_song = *iter;
-                    if (curr_song->get_year() < year_ && seperate_criterion[i] == "Before")
-                    {
-                        curr->add_in_playlist(curr_song);
-                    }
-                    else if (curr_song->get_year() >= year_ && seperate_criterion[i] == "After")
-                    {
-                        curr->add_in_playlist(curr_song);
-                    }
-                    if (counter > playlist_size) break;
-                    counter++;
-                }
-                it->second.insert(curr);
-                std::cout << "Successfully added " << curr->get_size() << " song/s to playlist!" << std::endl;
-                std::cout << "Playlist with title " << playlist_title << " added in your collection!" << std::endl;           
-            }
-            else if (seperate_criterion[i] == "favourites")
-            {
-
-            }
-            else if (seperate_criterion[i] == ">")
-            {
-
-            }
-            else if (seperate_criterion[i] == "Only")
-            {
-                
-            }
-        }
-        
-    }
-    else    // if words are more, then there are 2 combined criterion
-    {
-        
-    }
-    
-    it->second.insert(curr);
-}
-void System::read_users(Register &users)
-{
-    std::istringstream lineIn(file_info);
-    std::vector<std::string> words_user;
-    std::string word;
-    while(lineIn >> word)
-    {
-        words_user.push_back(word);
-    }
-    for (int i = 0; i < words_user.size(); i++)
-    {
-        if (words_user[i] == "User:")
-        {
-            int counter = 1;
-            User* curr = new User;
-            curr->set_username(words_user[i + 1]);
-            while (words_user[i + counter] != "|")
-            {
-                if (words_user[i + counter] == "Password:")
-                {
-                    curr->set_password(words_user[i  + counter + 1]);
-                }
-                else if (words_user[i + counter] == "name:")
-                {
-                    std::string fn = words_user[i  + counter + 1] + ' ' + words_user[i  + counter + 2] + ' ' + words_user[i  + counter + 3];
-                    curr->set_full_name(fn);
-                }
-                else if (words_user[i + counter] == "birth:")
-                {
-                    Date result;
-                    std::string _date = words_user[i  + counter + 1];
-                    for (int i = 0; i < _date.length(); i++)
-                    {
-                        if (_date[i] == '-')
-                        {
-                            _date[i] = ' ';
-                        }
-                        
-                    }
-                    std::vector <int> nums;
-                    int num;
-                    std::istringstream lineOfNums(_date);
-                    while(lineOfNums >> num)
-                    {
-                        nums.push_back(num);
-                    }
-                    Date d;
-                    if (d.isValid(nums[2], nums[1], nums[0]))
-                    {
-                        result.setDay(nums[2]);
-                        result.setMonth(nums[1]);
-                        result.setYear(nums[0]);
-                    }
-                    nums.clear();
-                    curr->set_birth_date(result);
-                }
-                else if (words_user[i + counter] == "genres:")
-                {
-                    int k = 1;
-                    while(words_user[i + counter + k] != "|" )
-                    {
-                        curr->add_fav_genre(words_user[i + counter + k]);
-                        k++;
-                    }
-                    std::pair<User*, std::set<Playlist*>> curr_pair;
-                    curr_pair.first = curr;
-                    std::set<Playlist*> playlists;
-                    curr_pair.second = playlists;
-                    users.get_allUsers().insert(curr_pair);
-                }
-                counter++;
-            }
-        }
-        
-    }
-}
-void System::read_songs(Collection &songs)
-{
-    std::vector<std::string> helper;
-    std::string elem;
-    std::istringstream myStream(file_info);
-    while(myStream >> elem)
-    {
-        helper.push_back(elem);
-    }
-    for (int i = 0; i < helper.size(); i++)
-    {
-        if (helper[i] == "Song:")
-        {
-            Song* curr = new Song;
-            int p = 1;
-            std::string _title;
-            while (helper[i + p] != "By:")
-            {
-                _title += helper[i + p];
-                if (helper[i + p + 1] != "By:")
-                {
-                    _title += " ";
-                }
-                p++; 
-            }
-            curr->set_title(_title);
-            int counter = 1;
-            while (helper[i + counter] != "|")
-            {
-                if (helper[i + counter] == "By:")
-                {
-                    int k = 0;
-                    std::string _artist;
-                    while (helper[i + counter + k + 1] != "Genre:")
-                    {
-                        _artist += helper[i + counter + k + 1];
-                        _artist += ' ';
-                        k++;
-                    }
-                    curr->set_artist(_artist);
-                }
-                else if (helper[i + counter] == "Genre:")
-                {
-                    int k = 0;
-                    std::string _genre;
-                    while (helper[i + counter + k + 1] != "Album:")
-                    {
-                        _genre += helper[i + counter + k + 1];
-                        _genre += ' ';
-                        k++;
-                    }
-                    curr->set_genre(_genre);
-                }
-                else if (helper[i + counter] == "Album:")
-                {
-                    int k = 0;
-                    std::string _album;
-                    while (helper[i + counter + k + 1] != "Year")
-                    {
-                        _album += helper[i + counter + k + 1];
-                        _album += ' ';
-                        k++;
-                    }
-                    curr->set_album(_album);
-                }
-                else if (helper[i + counter] == "release:")
-                {
-                    std::string _year;
-                    _year = helper[i  + counter + 1];
-                    int y = 0;
-                    std::istringstream turnToInt(_year);
-                    turnToInt >> y;
-                    curr->set_year(y);
-                }
-                else if (helper[i + counter] == "Rating:")
-                {
-                    int rate_num = 0;
-                    std::string _rating;
-                    std::istringstream turnToNum(_rating);
-                    turnToNum >> rate_num;
-                    curr->set_rating(rate_num);
-                }
-                counter++;
-            }
-            songs.add_song(curr);
-
-        }
-
-    }
-    
-}
 void System::set_file_end()
 {
     int final_index = this->get_file_info().length();
@@ -346,8 +92,8 @@ void System::run_program()
     set_path("C:\\Users\\User\\desktop\\test.txt");
     this->file.open(get_path(), std::ios::in);
     getline(this->file, this->file_info, '*');
-    read_songs(get_music_collection());
-    read_users(get_content());
+    this->reader.read_songs(this->get_music_collection(), this->get_file_info());
+    this->reader.read_users(this->get_content(), this->get_file_info());
     if (file.is_open())
     {
         std::cout << "Successfully opened file!" << std::endl;
@@ -385,7 +131,6 @@ void System::run_program()
                     {
                         std::cout << "Username must be at least 6 symbols!" << std::endl;
                     }
-                    
                 } while (_username.length() < 6);
                 do
                 {
@@ -395,7 +140,6 @@ void System::run_program()
                     {
                         std::cout << "Password must be at least 6 symbols!" << std::endl;
                     }
-                    
                 } while (_password.length() < 6);
                 bool checkUser = false;
                 for (auto it = get_content().get_allUsers().begin(); it != get_content().get_allUsers().end(); it++)
@@ -466,7 +210,6 @@ void System::run_program()
                             set_file_end();
                             std::cout << "Genre successfully added to favourites!" << std::endl;
                         }
-
                     }
                     else if (new_command == "remove genre")
                     {
@@ -558,7 +301,7 @@ void System::run_program()
                     }
                     else if (new_command == "generate playlist")
                     {
-                        generator(_username);
+                        this->generator.generate_playlist(_username, this->get_music_collection(), this->get_content(), this->get_printer());
                     }
                     else if (new_command == "show playlist")
                     {
@@ -588,9 +331,7 @@ void System::run_program()
                         else
                         {
                             curr->print_content();
-                        }
-                        
-                        
+                        } 
                     }
                     else if (new_command == "show collection")
                     {
@@ -692,9 +433,7 @@ void System::run_program()
                                     set_file_end();
                                 }
                             }
-                            
                         }
-                        
                     }
                     else if (new_command == "help")
                     {
