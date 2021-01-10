@@ -94,6 +94,7 @@ void System::run_program()
     getline(this->file, this->file_info, '*');
     this->reader.read_songs(this->get_music_collection(), this->get_file_info());
     this->reader.read_users(this->get_content(), this->get_file_info());
+    this->reader.read_playlists(this->get_content(), this->get_file_info(), this->get_music_collection());
     if (file.is_open())
     {
         std::cout << "Successfully opened file!" << std::endl;
@@ -186,7 +187,8 @@ void System::run_program()
                     }
                     else if (new_command == "generate playlist")
                     {
-                        this->generator.generate_playlist(_username, this->get_music_collection(), this->get_content(), this->get_printer());
+                        this->generator.generate_playlist(_username, this->get_music_collection(), this->get_content(), this->get_printer(), this->get_file_info(), this->get_path());
+                        set_file_end();
                     }
                     else if (new_command == "show playlist")
                     {

@@ -10,6 +10,7 @@ class Reader
     public:
         void read_songs(Collection &songs, std::string &file_info);
         void read_users(Register &users, std::string &file_info);
+        void read_playlists(Register &users, std::string &file_info, Collection &songs);
 };
 
 

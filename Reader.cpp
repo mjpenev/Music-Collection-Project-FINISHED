@@ -168,3 +168,89 @@ void Reader::read_songs(Collection &songs, std::string &file_info)
     }
     
 }
+void Reader::read_playlists(Register &users, std::string &file_info, Collection &songs)
+{
+    std::vector<std::string> all_words;
+    std::istringstream readInfo(file_info);
+    std::string word;
+    while(readInfo >> word)
+    {
+        all_words.push_back(word);
+    }
+    int const_size = all_words.size();
+    for (int i = 0; i < const_size; i++)
+    {
+        if (all_words[i] == "Playlist:")
+        {
+            Playlist *curr = new Playlist;
+            std::string username_;
+            std::string playlist_title;
+            int counter = 1;
+            while (all_words[i + counter] != "In")
+            {
+                playlist_title += all_words[i + counter];
+                if (all_words[i + counter + 1] != "In")
+                {
+                    playlist_title += " ";
+                }
+                counter++;
+            }
+            curr->set_playlist_title(playlist_title);
+            int counter_1 = 0;
+            while (all_words[i + counter_1 + 1] != "|")
+            {
+                if (all_words[i + counter_1] == "In")
+                {
+                    username_ = all_words[i + counter_1 + 1];
+                }
+                else if (all_words[i + counter_1] == "Contains:")
+                {
+                    int counter_2 = 1;
+                    std::string song_title = "";
+                    while (all_words[i + counter_1 + counter_2] != "|")
+                    {
+                        if (all_words[i + counter_1 + counter_2] == "/")
+                        {
+                            auto it = songs.get_songs().begin();
+                            Song *curr_song = new Song;
+                            if (song_title[0] == ' ')
+                            {
+                                song_title.erase(0, 1);
+                            }
+                            for ( ; it != songs.get_songs().end(); it++)
+                            {
+                                curr_song = *it;
+                                if (curr_song->get_title() + " " == song_title)
+                                {
+                                    curr->add_in_playlist(curr_song);
+                                }
+                            }
+                            song_title = "";
+                        }
+                        if (all_words[i + counter_1 + counter_2] != "/")
+                        {
+                            song_title += all_words[i + counter_1 + counter_2];
+                        }
+                        if (all_words[i + counter_1 + counter_2] != "-")
+                        {
+                            song_title += " ";
+                        }
+                        counter_2++;
+                    }
+
+                }
+                counter_1++;
+            }
+            auto iter = users.get_allUsers().begin();
+            for ( ; iter != users.get_allUsers().end(); iter++)
+            {
+                if (iter->first->get_username() == username_) break;
+            }
+            iter->second.insert(curr);
+            
+        }
+    
+    }
+    
+    
+}

@@ -138,13 +138,14 @@ void Functions::show_playlist(std::string _username, Register &users)
         if (it->first->get_username() == _username) break;
     }
     auto iter = it->second.begin();
-    Playlist *curr;
+    Playlist *curr = new Playlist;
     bool success = false;
     for ( ; iter != it->second.end(); iter++)
     {
         curr = *iter;
         if (curr->get_playlist_title() == to_search)
         {
+            curr->print_content();
             success = true;
         }
     }
@@ -152,10 +153,6 @@ void Functions::show_playlist(std::string _username, Register &users)
     {
         std::cout << "There is no playlist with this title!" << std::endl;
     }
-    else
-    {
-        curr->print_content();
-    } 
 }
 void Functions::rate_song(std::string _username, std::string &path_, std::string &file_info, Collection &songs)
 {
