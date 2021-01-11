@@ -121,7 +121,7 @@ void Functions::add_song(std::string &file_info, Printer &printer_, Collection &
     rate_str.resize(3);
     std::string file_insertion = "Song: " + _title + " By: " + _artist + " Genre: " + _genre + 
     " Album: " + _album + " Year of release: " + std::to_string(_year) + " Rating: " + rate_str + " Raters: "
-    + std::to_string(curr->get_people()) + " (" + std::to_string(curr->get_helper()) + ") |" + '\n';
+    + std::to_string(curr->get_people()) + " ( " + std::to_string(curr->get_helper()) + " ) |" + '\n';
     std::ofstream updateSong(path_);
     file_info += file_insertion;
     updateSong << file_info;
@@ -225,10 +225,52 @@ void Functions::rate_song(std::string _username, std::string &path_, std::string
                     new_position++;
                 } 
                 std::string rate_str = std::to_string(num_to_set);
-                rate_str.resize(4); // rating with only 2 digits after dot
+                rate_str.resize(3); // rating with only 1 digits after dot
+                if (file_info[new_position - 2] != ' ')
+                {
+                    file_info.erase(new_position - 2, 1);
+                }
                 file_info.erase(new_position - 1, 3); // - 1 cause the number before dot must be deleted // 3 cause of the symbols after dot
                 file_info.insert(new_position - 1, rate_str);
-                
+
+                for (int i = new_position; i < const_size; i++)
+                {
+                    new_position++;
+                    if (file_info[i] == ':') break;
+                }
+                new_position += 2; // to find the raters num
+                if (file_info[new_position - 1] != ' ' && file_info[new_position - 1] != 'R')
+                {
+                    file_info.erase(new_position - 1, 1);
+                }
+                if (file_info[new_position + 1] != ' ' && file_info[new_position + 1] != 'R')
+                {
+                    file_info.erase(new_position + 1, 1);
+                }
+                if (file_info[new_position] != '(' && file_info[new_position] != 'R')
+                {
+                    file_info.erase(new_position, 1);
+                }
+                std::string _raters;
+                _raters = std::to_string(curr->get_people());
+                file_info.insert(new_position - 1, _raters);
+                std::string _helper;
+                new_position += 2; // to reach the helper num
+                if (file_info[new_position - 1] != ' ' && file_info[new_position - 1] != '(' )
+                {
+                    file_info.erase(new_position - 1, 2);
+                }
+                if (file_info[new_position] != ' ' && file_info[new_position] != '(' )
+                {
+                    file_info.erase(new_position, 1);
+                }
+                if (file_info[new_position + 1] != ' ' && file_info[new_position + 1] != ')' )
+                {
+                    file_info.erase(new_position + 1, 1);
+                }
+                std::string helper_num;
+                helper_num = std::to_string(curr->get_helper());
+                file_info.insert(new_position + 1, helper_num);
                 std::ofstream updateRating(path_);
                 updateRating << file_info;
             }

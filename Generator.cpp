@@ -126,7 +126,7 @@ void Generator::generate_playlist(std::string username_, Collection &songs, Regi
                 }
                 if (curr->get_size() != 0)
                 {
-                    std::cout << "Successfully added " << curr->get_size() << " song/s to playlist from FAVOURITE GENRES criteria!" << std::endl;
+                    std::cout << "Successfully added " << curr->get_size() << " song/s to playlist from ABOVE RATING criteria!" << std::endl;
                     std::cout << "Playlist with title " << playlist_title << " added in your collection!" << std::endl; 
                 }
                 else

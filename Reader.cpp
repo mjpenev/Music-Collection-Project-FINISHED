@@ -153,11 +153,30 @@ void Reader::read_songs(Collection &songs, std::string &file_info)
                 }
                 else if (helper[i + counter] == "Rating:")
                 {
-                    int rate_num = 0;
+                    double rate_num = 0;
                     std::string _rating;
-                    std::istringstream turnToNum(_rating);
+                    std::istringstream turnToNum(helper[i + counter + 1]);
                     turnToNum >> rate_num;
                     curr->set_rating(rate_num);
+                }
+                else if (helper[i + counter] == "Raters:")
+                {
+                    int raters_num = 0;
+                    std::string _raters;
+                    _raters += helper[i + counter + 1];
+                    std::istringstream turnToNum(_raters);
+                    turnToNum >> raters_num;
+                    curr->set_people(raters_num);
+                    _raters = "";
+                }
+                else if (helper[i + counter] == "(")
+                {
+                    int helper_num = 0;
+                    std::string _helper;
+                    _helper = helper[i + counter + 1];
+                    std::istringstream turnToNum(_helper);
+                    turnToNum >> helper_num;
+                    curr->set_helper(helper_num);
                 }
                 counter++;
             }

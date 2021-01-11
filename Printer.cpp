@@ -48,8 +48,7 @@ void Printer::print_playlist_criterion()
     std::cout << "2) From favourites " << std::endl;
     std::cout << "3) Rating > -rating- " << std::endl;
     std::cout << "4) Only -genre- " << std::endl;
-    std::cout << "You can also combine 2 of these criterion with operator && or ||" << std::endl;
-    std::cout << "Example : After 2015 && Only pop" << std::endl;
+    std::cout << "Example : Only pop" << std::endl;
     std::cout << std::endl;
     std::cout << "===================================" << std::endl;
     std::cout << "Your criteria: ";
